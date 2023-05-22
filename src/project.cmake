@@ -1,4 +1,7 @@
-add_executable(test ${CMAKE_SOURCE_DIR}/src/main.cpp)
+file(GLOB_RECURSE GAME_SRC   ${CMAKE_SOURCE_DIR}/src/game/*.cpp)
+file(GLOB_RECURSE ENGINE_SRC ${CMAKE_SOURCE_DIR}/src/game/*.cpp)
+
+add_executable(test ${ENGINE_SRC} ${GAME_SRC})
 
 target_include_directories(
     test
