@@ -1,25 +1,18 @@
 #include <iostream>
 
+#include <engine/Core.h>
+#include <game/game.h>
+
 #include <flecs.h>
 #include <SFML/Graphics.hpp>
 
 // put your game source code here
 
+using namespace s2de;
+
 int main()
 {
-    sf::RenderWindow window(sf::VideoMode({ 1280, 720 }), "wat");
-
-    while (window.isOpen())
-    {
-        sf::Event event;
-        while (window.pollEvent(event))
-        {
-            if (event.type == sf::Event::Closed)
-                window.close();
-        }
-
-        window.clear();
-
-        window.display();
-    }
+    Scene* scene = new game::MainScene({ 640, 360 });
+    Application::create(sf::Vector2u{ 1280, 720 }, scene);
+    Application::get().run();
 }
