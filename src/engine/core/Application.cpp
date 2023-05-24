@@ -29,16 +29,14 @@ namespace s2de
             }
 
             /* Get the event objects and pass the sfml events to them */
-            auto input = current_scene->getWorld().filter<components::Input>();
-
             sf::Event event;
             while (_window.pollEvent(event))
             {
                 if (event.type == sf::Event::Closed)
                     _window.close();
 
-                input.each([event](components::Input& input)
-                { input.object->onEvent(event); });
+                current_scene->eventChildren(event);
+                current_scene->onEvent(event);
             }
 
             /* Frame rendering begins */

@@ -34,6 +34,7 @@ namespace s2de
 
         sf::Texture* getTexture(const std::string& path);
 
+        void eventChildren(const sf::Event& event);
         void updateChildren(double dt);
         void renderChildren();
 

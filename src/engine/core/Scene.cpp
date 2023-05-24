@@ -1,4 +1,5 @@
 #include <engine/Core.h>
+#include <iostream>
 
 namespace s2de
 {
@@ -48,6 +49,13 @@ namespace s2de
         }
     }
 
+    void Scene::eventChildren(const sf::Event& event)
+    {
+        auto input = _world.filter<components::Input>();
+        input.each([event](components::Input& input)
+        { input.object->onEvent(event); });
+    }
+
     void Scene::updateChildren(double dt)
     {
         auto scriptable_objects = _world.filter<components::Scriptable>();
@@ -87,6 +95,7 @@ namespace s2de
             this->_surface.draw(sf_rect);
         });
 
+        /* on render doesn't work for some reason... */
         //auto scriptable_objects = _world.filter<components::Scriptable>();
         //scriptable_objects.each([this](components::Scriptable& script)
         //{ script.object->onRender(this->_surface); });

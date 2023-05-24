@@ -1,5 +1,4 @@
-#include <game/scenes/MainScene.h>
-#include <engine/Core.h>
+#include <game/game.h>
 
 #include <iostream>
 
@@ -8,8 +7,11 @@ using namespace s2de;
 namespace game
 {
     GameScreen::GameScreen() :
-        s2de::Scene(sf::Vector2u{ 290, 328 })
+        s2de::Scene(sf::Vector2u{ 290, 328 }),
+        _player(_world)
     {   
+        addSystem<SysPhysics>();
+
         auto floater = _world.entity();
         floater.set(components::Transform {
             .position = sf::Vector2f(10, 10),
@@ -67,6 +69,7 @@ namespace game
 
     void MainScene::onEvent(const sf::Event& event)
     {
+        _game_screen.eventChildren(event);
         _game_screen.onEvent(event);
     }
 }
