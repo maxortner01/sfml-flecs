@@ -45,6 +45,7 @@ namespace s2de
             _window.clear(sf::Color(33, 30, 32, 255));
 
             /* Update objects, scriptable objects and then systems */
+            current_scene->onUpdate(dt);
             current_scene->updateChildren(dt);
 
             /* We want to render all the scenes, so we iterate through them and render them to the window */

@@ -31,7 +31,7 @@ namespace game
 
     void GameScreen::onUpdate(double dt)
     {
-
+        
     }
 
     void GameScreen::onEvent(const sf::Event& event)
