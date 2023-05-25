@@ -5,6 +5,17 @@
 
 namespace s2de::components
 {
+    /* Tags */
+    enum class Player {};
+    enum class Enemy {};
+    enum class Tile {};
+
+    /* Components */
+    struct Depth
+    {
+        float z;
+    };
+
     struct Transform
     {
         sf::Vector2f position;
@@ -15,6 +26,11 @@ namespace s2de::components
     struct Velocity
     {
         sf::Vector2f vector;
+    };
+
+    struct MapCoordinates
+    {
+        sf::Vector2i coordinates;
     };
 
     struct hp

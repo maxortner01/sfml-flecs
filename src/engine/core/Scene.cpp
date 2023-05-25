@@ -7,6 +7,7 @@ namespace s2de
         _dimensions(dimensions)
     {
         assert(_surface.create(dimensions));
+        _view = sf::View({ 0, 0 }, (sf::Vector2f)dimensions);
     }
 
     Scene::~Scene()
@@ -43,7 +44,7 @@ namespace s2de
         else
         {
             sf::Texture* _texture = new sf::Texture();
-            _texture->loadFromFile(path);
+            assert(_texture->loadFromFile(path));
             _textures.insert(std::pair<std::string, sf::Texture*>(path, _texture));
             return _texture;
         }
@@ -62,45 +63,54 @@ namespace s2de
         scriptable_objects.each([dt, this](components::Scriptable& script)
         { script.object->onUpdate(dt, this->_world); });
 
-        for (auto* system : getSystems()) 
-            system->onUpdate(dt, getWorld());
+        for (auto* system : getSystems()) system->onUpdate(dt, _world);
     }
 
     void Scene::renderChildren()
     {
-        auto sprites = _world.filter<components::Sprite, components::Transform>();
-        sprites.each([this](components::Sprite& sprite, components::Transform& transform) 
-        {
-            sf::IntRect rectangle = sprite.rectangle;
-            rectangle.left += sprite.rectangle.width * ((int)(this->clock.getElapsedTime().asSeconds() / sprite.frame_time * sprite.frames) % sprite.frames);
+        using namespace components;
 
-            sf::Sprite object(*sprite.texture);
-            object.setTextureRect(rectangle);
-            object.setPosition(transform.position);
-            object.setScale(transform.scale);
-            object.setRotation(transform.rotation);
-            this->_surface.draw(object);
+        /* Order the sprites and rectangles by depth */
+        auto objects = _world.query_builder<const Depth, const Transform>()
+            .order_by<const Depth>([](flecs::entity_t e1, const Depth* d1, flecs::entity_t e2, const Depth* d2)
+            {
+                return (d1->z > d2->z) - (d1->z < d2->z);
+            }).build();
+
+        /* Go through the queried objects and render with the appropriate method */
+        objects.each([this](flecs::entity e, const Depth& depth, const Transform& transform) 
+        {
+            if (e.has<const Sprite>())
+            {
+                auto* sprite = e.get<const Sprite>();
+
+                sf::IntRect rectangle = sprite->rectangle;
+                rectangle.left += sprite->rectangle.width * 
+                    ((int)(this->clock.getElapsedTime().asSeconds() / sprite->frame_time * sprite->frames) % sprite->frames);
+
+                sf::Sprite object(*sprite->texture);
+                object.setTextureRect(rectangle);
+                object.setPosition(transform.position);
+                object.setScale(transform.scale);
+                object.setRotation(transform.rotation);
+                this->_surface.draw(object);
+            }
+            else if (e.has<const Rectangle>())
+            {
+                auto* rect = e.get<const Rectangle>();
+
+                sf::RectangleShape sf_rect;
+                sf_rect.setSize(rect->dimensions);
+                sf_rect.setOrigin(sf_rect.getSize() / 2.f);
+                sf_rect.setFillColor(rect->color);
+                sf_rect.setPosition(transform.position);
+                sf_rect.setScale(transform.scale);
+                sf_rect.setRotation(transform.rotation);
+                this->_surface.draw(sf_rect);
+            }
         });
 
-        auto rectangles = _world.filter<components::Rectangle, components::Transform>();
-        rectangles.each([this](components::Rectangle& rect, components::Transform& transform)
-        {
-            sf::RectangleShape sf_rect;
-            sf_rect.setSize(rect.dimensions);
-            sf_rect.setOrigin(sf_rect.getSize() / 2.f);
-            sf_rect.setFillColor(rect.color);
-            sf_rect.setPosition(transform.position);
-            sf_rect.setScale(transform.scale);
-            sf_rect.setRotation(transform.rotation);
-            this->_surface.draw(sf_rect);
-        });
-
-        /* on render doesn't work for some reason... */
-        //auto scriptable_objects = _world.filter<components::Scriptable>();
-        //scriptable_objects.each([this](components::Scriptable& script)
-        //{ script.object->onRender(this->_surface); });
-
-        // Render the systems
+        /* Render the systems */
         for (auto* system : getSystems())
             system->onRender(_surface, _world);
     }

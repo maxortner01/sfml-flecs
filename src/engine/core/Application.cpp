@@ -55,6 +55,7 @@ namespace s2de
 
                 // Finally, call the scene render
                 scene->onRender();
+                scene->_surface.setView(scene->getView());
 
                 // Now we draw the surface to the window
                 const sf::Vector2f scale = sf::Vector2f(
@@ -67,6 +68,7 @@ namespace s2de
                 _window.draw(surface);
             }
 
+            _window.setTitle("FPS: " + std::to_string((int)(1.0 / dt)));
             _window.display();
         }
 

@@ -9,8 +9,8 @@ namespace game
         _entity(world.entity())
     {
         _entity.set(components::Transform {
-            .position = sf::Vector2f(50, 100),
-            .scale = sf::Vector2f(1, 1),
+            .position = sf::Vector2f(0, 0),
+            .scale = sf::Vector2f(0.2, 0.2),
             .rotation = sf::radians(0)
         })
         .set(components::Force {
@@ -31,7 +31,11 @@ namespace game
         })
         .set(components::Scriptable {
             .object = static_cast<components::ScriptableObject*>(this)
-        });
+        })
+        .set(components::Depth {
+            .z = 0.f
+        })
+        .add<components::Player>();
     }
 
     void Player::onUpdate(double dt, flecs::world& world)
@@ -61,6 +65,7 @@ namespace game
             case sf::Keyboard::S: _input[1] = 1; break;
             case sf::Keyboard::A: _input[2] = 1; break;
             case sf::Keyboard::D: _input[3] = 1; break;
+            default: break;
             }
         }
         else if (event.type == sf::Event::KeyReleased)
@@ -71,6 +76,7 @@ namespace game
             case sf::Keyboard::S: _input[1] = 0; break;
             case sf::Keyboard::A: _input[2] = 0; break;
             case sf::Keyboard::D: _input[3] = 0; break;
+            default: break;
             }
         }
     }

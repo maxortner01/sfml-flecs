@@ -10,6 +10,7 @@ namespace game
     class GameScreen : 
         public s2de::Scene
     {
+        bool _zoomed;
         Player _player;
 
     public:
@@ -29,7 +30,7 @@ namespace game
         GameScreen _game_screen;
 
     public:
-        using s2de::Scene::Scene;
+        MainScene(const sf::Vector2u& dimensions);
 
         void onRender();
         void onUpdate(double dt);
