@@ -15,6 +15,7 @@ int main()
     std::cout << std::filesystem::current_path() << "\n";
     
     Scene* scene = new game::MainScene({ 640, 360 });
-    Application::create(sf::Vector2u{ 1280, 720 }, scene);
+    Application::create(sf::Vector2u{ 1920, 1440 }, scene);
     Application::get().run();
+    Application::destroy(); // <- not explicitly destroying leads SFML to freak out
 }

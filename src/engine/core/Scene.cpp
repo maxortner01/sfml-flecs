@@ -13,7 +13,7 @@ namespace s2de
     Scene::~Scene()
     {
         // wtf
-        _surface.~RenderTexture();
+        //_surface.~RenderTexture();
 
         for (auto it = _textures.begin(); it != _textures.end(); it++)
             delete (*it).second;

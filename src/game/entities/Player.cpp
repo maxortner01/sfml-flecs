@@ -14,17 +14,17 @@ namespace game
             .rotation = sf::radians(0)
         })
         .set(components::Force {
-            .k = 6.5f,
+            .direction = sf::Vector2f(0, 0),
             .m = 1.f,
-            .max_velocity = 650.f,
-            .direction = sf::Vector2f(0, 0)
+            .k = 6.5f,
+            .max_velocity = 650.f
         })
         .set(components::Velocity {
             .vector = sf::Vector2f(0, 0)
         })
         .set(components::Rectangle {
-            .color = sf::Color::White,
-            .dimensions = sf::Vector2f(32, 32)
+            .dimensions = sf::Vector2f(32, 32),
+            .color = sf::Color::White
         })
         .set(components::Input {
             .object = static_cast<components::InputObject*>(this)

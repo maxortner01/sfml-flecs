@@ -34,6 +34,15 @@ namespace s2de
             {
                 if (event.type == sf::Event::Closed)
                     _window.close();
+                else if (event.type == sf::Event::Resized)
+                {
+                    /* Here we want to update the view of the window to reflect the change in size */
+                    _window.setView(
+                        sf::View((sf::Vector2f)_window.getSize() / 2.f, (sf::Vector2f)_window.getSize())
+                    );
+                }
+                else if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Escape)
+                    _window.close();
 
                 current_scene->eventChildren(event);
                 current_scene->onEvent(event);
@@ -58,13 +67,20 @@ namespace s2de
                 scene->_surface.setView(scene->getView());
 
                 // Now we draw the surface to the window
-                const sf::Vector2f scale = sf::Vector2f(
-                    (float)_window.getSize().x / (float)scene->getSize().x,
-                    (float)_window.getSize().y / (float)scene->getSize().y
-                );
+                // We wish to preserve aspect ratio, and center on the screen
+                // To do this we need to obtain the new size
+                const sf::Vector2u size  = scene->getTexture().getSize();
+                const float aspect_ratio = (float)size.x / (float)size.y;
+                const float scale        = (float)_window.getSize().y / (float)size.y;
 
                 sf::Sprite surface(scene->getTexture());                
-                surface.setScale(scale);
+                surface.setScale(sf::Vector2f(scale, scale));
+                surface.setPosition(
+                    sf::Vector2f(
+                        _window.getSize().x / 2.f - size.x * scale / 2.f,
+                        0
+                    )
+                );
                 _window.draw(surface);
             }
 

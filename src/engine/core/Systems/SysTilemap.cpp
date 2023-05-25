@@ -1,5 +1,6 @@
 #include <engine/Core.h>
 
+#include <bitset>
 #include <iostream>
 
 namespace s2de
@@ -131,8 +132,8 @@ namespace s2de
             })
             .set(Sprite {
                 .texture = _tilemap,
-                .frames = 1,
                 .rectangle = sf::IntRect({ 64 * (int32_t)index, 0 }, { 64, 64 }),
+                .frames = 1,
                 .frame_time = 1.f
             })
             .set(MapCoordinates {
@@ -165,8 +166,8 @@ namespace s2de
             })
             .set(Sprite {
                 .texture = _tilemap,
-                .frames = 1,
                 .rectangle = sf::IntRect({ 64 * index, 0 }, { 64, 64 }),
+                .frames = 1,
                 .frame_time = 1.f
             })
             .set(MapCoordinates {
