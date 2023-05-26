@@ -21,5 +21,9 @@ namespace s2de
         friend class utility::Singleton<Application>;
 
         void run();
+
+        sf::FloatRect getSceneRect(const Scene& scene) const;
+
+        sf::RenderWindow& getWindow() { return _window; }
     };
 }

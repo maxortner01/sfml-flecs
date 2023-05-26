@@ -11,6 +11,7 @@ namespace game
         public s2de::Scene
     {
         bool _zoomed;
+        sf::Vector2f _mouse_pos;
         Player _player;
 
     public:

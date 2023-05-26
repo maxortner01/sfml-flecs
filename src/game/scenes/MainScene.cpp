@@ -22,10 +22,11 @@ namespace game
         addSystem<SysTilemap>(sf::Vector2f(64, 64), getTexture("res/textures/tile.png"), map, _world);
         addSystem<SysPhysics>();
         addSystem<EnemySystem>(getTexture("res/textures/proj.png"));
+        addSystem<BattleSystem>();
 
         for (int i = 0; i < 5; i ++)
             _world.entity().set(components::Transform{
-                .position = sf::Vector3f(1 + rand_num(-1.f, 1.f), 1 + rand_num(-1, 1), 1.f),
+                .position = sf::Vector3f(1 + rand_num(-1.f, 1.f), 1 + rand_num(-1, 1), 0.5f),
                 .scale = sf::Vector2f(1, 1),
                 .rotation = sf::radians(0)
             })
@@ -68,6 +69,18 @@ namespace game
                 getView().getSize()   + (target_zoom - getView().getSize()) * 4.5f * (float)dt
             )
         );
+
+        auto mouse_pos  = (sf::Vector2f)sf::Mouse::getPosition(Application::get().getWindow());
+        const auto scene_rect = Application::get().getSceneRect(*this);
+        mouse_pos.x -= scene_rect.left;
+        mouse_pos.x *= getSize().x / scene_rect.width;
+        mouse_pos.y *= getSize().y / scene_rect.height;
+        mouse_pos += (getView().getCenter() - getView().getSize() / 2.f);
+
+        sf::Vector2f pos;
+        pos.x = 1.f / 64.f * (mouse_pos.x + 2 * mouse_pos.y);
+        pos.y = 4.f / 64.f * mouse_pos.y - pos.x;
+        _mouse_pos = pos;
     }
 
     void GameScreen::onEvent(const sf::Event& event)

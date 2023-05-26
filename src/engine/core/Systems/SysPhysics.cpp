@@ -9,10 +9,11 @@ namespace s2de
         using namespace s2de::components;
 
         std::vector<flecs::entity> es;
-        auto grav = world.filter<const Gravity, const Sprite, Velocity>();
-        grav.each([dt, &es](const Gravity g, const Sprite& sprite, Velocity& vel)
+        auto grav = world.filter<const Gravity, const Sprite, Velocity, const Transform>();
+        grav.each([dt, &es](const Gravity g, const Sprite& sprite, Velocity& vel, const Transform& transform)
             {
                 vel.vector -= sf::Vector3f(0, 0, 9.8) * (float)dt * 0.5f;
+                if (transform.position.z <= 0) vel.vector.z *= -0.8;
             });
 
         auto f = world.filter<Force, Transform, Velocity>();

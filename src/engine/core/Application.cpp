@@ -91,4 +91,20 @@ namespace s2de
         for (auto* scene : _scenes) delete scene;
         _scenes.clear();
     }
+
+    sf::FloatRect Application::getSceneRect(const Scene& scene) const
+    {
+        sf::FloatRect r;
+
+        const sf::Vector2u size = scene.getTexture().getSize();
+        const float aspect_ratio = (float)size.x / (float)size.y;
+        const float scale = (float)_window.getSize().y / (float)size.y;
+        
+        r.left  = _window.getSize().x / 2.f - size.x * scale / 2.f;
+        r.top   = 0;
+        r.width = size.x * scale;
+        r.height = _window.getSize().y;
+
+        return r;
+    }
 }
