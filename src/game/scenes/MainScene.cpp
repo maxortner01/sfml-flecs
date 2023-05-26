@@ -21,7 +21,7 @@ namespace game
 
         addSystem<SysTilemap>(sf::Vector2f(64, 64), getTexture("res/textures/tile.png"), map, _world);
         addSystem<SysPhysics>();
-        addSystem<EnemySystem>();
+        addSystem<EnemySystem>(getTexture("res/textures/proj.png"));
 
         for (int i = 0; i < 5; i ++)
             _world.entity().set(components::Transform{

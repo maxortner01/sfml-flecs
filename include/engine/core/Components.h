@@ -8,7 +8,8 @@ namespace s2de::components
     /* Tags */
     enum class Player {};
     enum class Tile {};
-
+    enum class Bullet {};
+    enum class Gravity {};
 
     enum EnemyType : uint8_t
     {
