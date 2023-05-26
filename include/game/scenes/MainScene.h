@@ -19,6 +19,8 @@ namespace game
         
         GameScreen();
 
+        sf::Vector2f toWorld(const sf::Vector3f& pos) const override;
+
         void onRender();
         void onUpdate(double dt);
         void onEvent(const sf::Event& event);        

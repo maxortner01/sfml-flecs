@@ -71,22 +71,21 @@ namespace s2de
         using namespace components;
 
         /* Order the sprites and rectangles by depth */
-        auto objects = _world.query_builder<Transform, const MapCoordinates>()
-            .order_by<const MapCoordinates>([](flecs::entity_t e1, const MapCoordinates* d1, flecs::entity_t e2, const MapCoordinates* d2)
+        auto objects = _world.query_builder<const Transform>()
+            .order_by<const Transform>([](flecs::entity_t e1, const Transform* d1, flecs::entity_t e2, const Transform* d2)
             {
-                int32_t coord1 = d1->coordinates.y + d1->coordinates.x + d1->level;
-                int32_t coord2 = d2->coordinates.y + d2->coordinates.x + d2->level;
+                const float depth1 = d1->position.x + d1->position.y + d1->position.z;
+                const float depth2 = d2->position.x + d2->position.y + d2->position.z;
 
-                /* If the positions are the same, sort by the entitity id.. works for now */
-                if (coord1 == coord2)
-                    return (e1 > e2) - (e1 < e2);
-                
-                return (coord1 > coord2) - (coord1 < coord2);
+                if (depth1 > depth2) return 1;
+                if (depth1 < depth2) return -1;
+
+                return 0;
             })
             .build();
 
         /* Go through the queried objects and render with the appropriate method */
-        objects.each([this](flecs::entity e, Transform& transform, const MapCoordinates& map)
+        objects.each([this](flecs::entity e, const Transform& transform)
         {
             if (e.has<const Sprite>())
             {
@@ -98,7 +97,7 @@ namespace s2de
 
                 sf::Sprite object(*sprite->texture);
                 object.setTextureRect(rectangle);
-                object.setPosition(transform.position);
+                object.setPosition(toWorld(transform.position));
                 object.setScale(transform.scale);
                 object.setRotation(transform.rotation);
                 object.setOrigin(object.getGlobalBounds().getSize() / 2.f);
@@ -113,7 +112,7 @@ namespace s2de
                 sf_rect.setSize(rect->dimensions);
                 sf_rect.setOrigin(sf_rect.getSize() / 2.f);
                 sf_rect.setFillColor(rect->color);
-                sf_rect.setPosition(transform.position);
+                sf_rect.setPosition(toWorld(transform.position));
                 sf_rect.setScale(transform.scale);
                 sf_rect.setRotation(transform.rotation);
                 this->_surface.draw(sf_rect);
@@ -124,7 +123,7 @@ namespace s2de
 
         /* Render the systems */
         for (auto* system : getSystems())
-            system->onRender(_surface, _world);
+            system->onRender(*this, _world);
     }
 
     const std::vector<System*>& Scene::getSystems() const

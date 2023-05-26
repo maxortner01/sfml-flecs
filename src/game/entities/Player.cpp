@@ -9,18 +9,18 @@ namespace game
         _entity(world.entity())
     {
         _entity.set(components::Transform{
-            .position = sf::Vector2f(80, 120),
+            .position = sf::Vector3f(0, 0, 0),
             .scale = sf::Vector2f(0.2, 0.2),
             .rotation = sf::radians(0)
         })
         .set(components::Force{
-            .direction = sf::Vector2f(0, 0),
+            .direction = sf::Vector3f(0, 0, 0),
             .m = 1.f,
-            .k = 6.5f,
-            .max_velocity = 250.f
+            .k = 2.f,
+            .max_velocity = 10.f
             })
         .set(components::Velocity{
-            .vector = sf::Vector2f(0, 0)
+            .vector = sf::Vector3f(0, 0, 0)
             })
         .set(components::Rectangle{
             .dimensions = sf::Vector2f(32, 32),
@@ -32,7 +32,6 @@ namespace game
         .set(components::Scriptable{
             .object = static_cast<components::ScriptableObject*>(this)
             })
-        .add<components::MapCoordinates>()
         .add<components::Player>();
     }
 
@@ -41,14 +40,19 @@ namespace game
         auto position  = _entity.get<components::Transform>()->position;
         components::Force* force = _entity.get_mut<components::Force>();
         
-        force->direction = sf::Vector2f(0, 0);
-        sf::Vector2f new_force;
+        force->direction = sf::Vector3f(0, 0, 0);
+        sf::Vector3f new_force;
         const float mag = force->max_velocity * force->k;
-        if (_input[0]) new_force.y -= mag * 0.5;
-        if (_input[1]) new_force.y += mag * 0.5;
+        if (_input[0]) new_force.y -= mag;
+        if (_input[1]) new_force.y += mag;
         if (_input[2]) new_force.x -= mag;
         if (_input[3]) new_force.x += mag;
-        if (new_force.length()) new_force = new_force.normalized() * mag;
+        if (new_force.length())
+        {
+            new_force.x = sf::Vector2f(new_force.x, new_force.y).rotatedBy(sf::degrees(-45)).x;
+            new_force.y = sf::Vector2f(new_force.x, new_force.y).rotatedBy(sf::degrees(-38)).y * 2.f;
+            new_force = new_force.normalized() * mag;
+        }
 
         force->direction = new_force;
     }

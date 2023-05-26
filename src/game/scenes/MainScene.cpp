@@ -25,27 +25,33 @@ namespace game
 
         for (int i = 0; i < 5; i ++)
             _world.entity().set(components::Transform{
-                .position = sf::Vector2f(60 + rand_num(-100.f, 100.f), 200 + rand_num(-100.f, 100.f)),
+                .position = sf::Vector3f(1 + rand_num(-1.f, 1.f), 1 + rand_num(-1, 1), 1.f),
                 .scale = sf::Vector2f(1, 1),
                 .rotation = sf::radians(0)
             })
             .set(components::Force{
-                .direction = sf::Vector2f(0, 0),
+                .direction = sf::Vector3f(0, 0, 0),
                 .m = 1.f,
-                .k = 8.5f,
-                .max_velocity = 150.f
+                .k = 2.f,
+                .max_velocity = 2.f
                 })
             .set(components::Velocity{
-                .vector = sf::Vector2f(0, 0)
+                .vector = sf::Vector3f(0, 0, 0)
                 })
             .set(components::Sprite{
                 .texture = getTexture("res/textures/floaty.png"),
                 .rectangle = sf::IntRect({ 0, 0 }, { 32, 32 }),
                 .frames = 4,
-                .frame_time = 1,
-                .offset = sf::Vector2f(0, -30)
-            }).set<components::Enemy>({ components::EnemyType::Floaty })
-            .add<components::MapCoordinates>();
+                .frame_time = 1
+            }).set<components::Enemy>({ components::EnemyType::Floaty });
+    }
+
+    sf::Vector2f GameScreen::toWorld(const sf::Vector3f & pos) const
+    {
+        return sf::Vector2f(
+            (pos.x - pos.y) * 0.5f * 64.f,
+            (pos.x + pos.y - pos.z * 2.f) * 0.5f * 64.f * 0.5f
+        );
     }
 
     void GameScreen::onRender()
@@ -58,14 +64,10 @@ namespace game
         const sf::Vector2f target_zoom = (sf::Vector2f)getSize() * (_zoomed?4.f:1.f);
         setView(
             sf::View(
-                getView().getCenter() + (_player.getEntity().get<const components::Transform>()->position - getView().getCenter()) * 2.5f * (float)dt,
+                getView().getCenter() + (toWorld(_player.getEntity().get<const components::Transform>()->position) - getView().getCenter()) * 2.5f * (float)dt,
                 getView().getSize()   + (target_zoom - getView().getSize()) * 4.5f * (float)dt
             )
         );
-
-        std::cout <<
-            _player.getEntity().get<const components::MapCoordinates>()->coordinates.x << ", " <<
-            _player.getEntity().get<const components::MapCoordinates>()->coordinates.y << "\n";
     }
 
     void GameScreen::onEvent(const sf::Event& event)

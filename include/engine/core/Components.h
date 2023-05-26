@@ -21,29 +21,16 @@ namespace s2de::components
         EnemyType type;
     };
 
-    /* Components */
-    struct Depth
-    {
-        float z;
-        float elevation;
-    };
-
     struct Transform
     {
-        sf::Vector2f position;
+        sf::Vector3f position;
         sf::Vector2f scale;
         sf::Angle    rotation;
     };
     
     struct Velocity
     {
-        sf::Vector2f vector;
-    };
-
-    struct MapCoordinates
-    {
-        sf::Vector2i coordinates;
-        int32_t level;
+        sf::Vector3f vector;
     };
 
     struct hp
@@ -55,7 +42,7 @@ namespace s2de::components
 
     struct Force
     {
-        sf::Vector2f direction;
+        sf::Vector3f direction;
         float m;
         float k;
         float max_velocity;

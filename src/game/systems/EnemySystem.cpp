@@ -8,13 +8,13 @@ namespace game
 		_bullet(bullet)
 	{	}
 
-	void EnemySystem::onRender(sf::RenderTarget& target, flecs::world& world)
+	void EnemySystem::onRender(s2de::Scene& scene, flecs::world& world)
 	{
 		using namespace s2de::components;
 
 		auto enemies = world.filter<const Enemy, const Sprite, const Transform>();
 
-		enemies.each([&target](const Enemy& enemy, const Sprite& sprite, const Transform& transform)
+		enemies.each([&scene](const Enemy& enemy, const Sprite& sprite, const Transform& transform)
 			{
 				switch (enemy.type)
 				{
@@ -22,11 +22,11 @@ namespace game
 				{
 					sf::CircleShape circle;
 					circle.setRadius(12.f);
-					circle.setPosition(transform.position);
+					circle.setPosition(scene.toWorld(sf::Vector3f(transform.position.x, transform.position.y, 0)));
 					circle.setOrigin(circle.getGlobalBounds().getSize() / 2.f);
 					circle.setScale(sf::Vector2f(0.8, 0.45));
 					circle.setFillColor(sf::Color(33, 30, 32, 107));
-					target.draw(circle);
+					scene.getRenderTexture().draw(circle);
 				}
 				}
 			});
@@ -44,41 +44,57 @@ namespace game
 		auto enemies = world.filter<const Enemy, const Transform, const Sprite, Force>();
 		enemies.each([&player_position, &dt, &enemies, this, &world](flecs::entity e1, const Enemy& enemy, const Transform& transform, const Sprite& sprite, Force& force)
 			{
-				const sf::Vector2f dir_unnormalized = (player_position - transform.position - sprite.offset);
+				const sf::Vector3f dir_unnormalized = (player_position - transform.position);
 				const float distance = dir_unnormalized.length();
-				const sf::Vector2f dir = dir_unnormalized / distance;
+				const sf::Vector3f dir = dir_unnormalized / distance;
 
-				if (distance >= 70.f)
-					force.direction = dir * 500.f;
+				if (distance >= 2.f)
+				{
+					force.direction.x = dir.x * 2.f;
+					force.direction.y = dir.y * 2.f;
+				}
 				else
-					force.direction = dir.rotatedBy(sf::degrees(110)) * 250.f ;
-
+				{
+					force.direction.x = sf::Vector2f(dir.x, dir.y).rotatedBy(sf::degrees(110)).x * 1.f;
+					force.direction.y = sf::Vector2f(dir.x, dir.y).rotatedBy(sf::degrees(110)).y * 1.f;
+				}
+					
 				enemies.each([&e1, &transform, &force](flecs::entity e2, const Enemy& enemy, const Transform& transform2, const Sprite& sprite2, Force& force2)
 					{
 						if (e1 == e2) return;
 
 						const float distance = (transform2.position - transform.position).length();
-						const float mag = 5200.f / (distance * distance);
-						const sf::Vector2f dir = (transform.position - transform2.position) / distance;
-						force.direction += dir * mag;
+						const float mag = 0.05f / (distance * distance);
+						const sf::Vector3f dir = (transform.position - transform2.position) / distance;
+
+						force.direction.x += dir.x * mag;
+						force.direction.y += dir.y * mag;
 					});
 
-				/*
 				if (enemy.type == EnemyType::Floaty)
 				{
+					const float dist = (
+							sf::Vector2f(player_position.x, player_position.y) - sf::Vector2f(transform.position.x, transform.position.y)
+						).length();
+					const float g = 9.8f * 0.5f;
+					const float v0 = 3.5f;
+					const float vx = g * dist / (v0 + sqrt(v0 * v0 + 4 * g * transform.position.z));
+					sf::Vector3f vel = dir * vx;
+					vel.z = v0;
+
 					// shoot?
 					srand(e1.id());
 					double val = fmod(_time.getElapsedTime().asSeconds(), (rand() % 1000) / 1000.f);
-					if (val < 0.1)
+					if (val < 0.01)
 					{
 						world.entity()
 							.set(Transform{
 									.position = transform.position,
-									.scale    = sf::Vector2f(0.9, 0.9),
+									.scale    = sf::Vector2f(1, 1),
 									.rotation = sf::radians(0)
 								})
 							.set(Velocity{
-									.vector = dir.rotatedBy(sf::radians(distance)) * 75.f
+									.vector = vel
 								})
 							.set(Sprite{
 									.texture = _bullet,
@@ -87,11 +103,10 @@ namespace game
 									.frame_time = 1.f,
 									.offset = sprite.offset
 								})
-							.set(e1.get<MapCoordinates>())
 							.add<Bullet>()
 							.add<Gravity>();
 					}
-				}*/
+				}
 			});
 	}
 }

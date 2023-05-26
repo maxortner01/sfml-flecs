@@ -38,13 +38,18 @@ namespace s2de
         void updateChildren(double dt);
         void renderChildren();
 
+        virtual sf::Vector2f toWorld(const sf::Vector3f& pos) const { return sf::Vector2f(pos.x, pos.y); };
+
         // Systems
         const std::vector<System*>& getSystems() const;
         template<typename T, typename... Args> 
-        void addSystem(Args&&... args)
+        T* addSystem(Args&&... args)
         {
             static_assert(std::is_base_of<System, T>::value);
-            _systems.push_back(new T(args...));
+
+            T* sys = new T(args...);
+            _systems.push_back(sys);
+            return sys;
         }
 
         flecs::world& getWorld();

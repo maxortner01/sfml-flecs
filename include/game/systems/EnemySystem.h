@@ -8,7 +8,7 @@ namespace game
 	{
 		EnemySystem(sf::Texture* bullet);
 
-		void onRender(sf::RenderTarget&, flecs::world&) override;
+		void onRender(s2de::Scene&, flecs::world&) override;
 		void onUpdate(double dt, flecs::world& world) override;
 
 	private:

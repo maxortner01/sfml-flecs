@@ -8,7 +8,7 @@ namespace s2de
     struct System
     {
         virtual ~System() = default;
-        virtual void onRender(sf::RenderTarget&, flecs::world&) { }
+        virtual void onRender(Scene&, flecs::world&) { }
         virtual void onUpdate(double, flecs::world&) = 0;
     };
 }
