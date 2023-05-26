@@ -6,6 +6,11 @@ using namespace s2de;
 
 namespace game
 {
+    float rand_num(float lower, float higher)
+    {
+        return ((rand() % 1000000) / 1000000.f) * (higher - lower) + lower;
+    }
+
     GameScreen::GameScreen() :
         s2de::Scene(sf::Vector2u{ 290, 328 }),
         _player(_world),
@@ -16,22 +21,31 @@ namespace game
 
         addSystem<SysTilemap>(sf::Vector2f(64, 64), getTexture("res/textures/tile.png"), map, _world);
         addSystem<SysPhysics>();
+        addSystem<EnemySystem>();
 
-        auto floater = _world.entity();
-        floater.set(components::Transform {
-            .position = sf::Vector2f(-40, -100),
-            .scale    = sf::Vector2f(1, 1),
-            .rotation = sf::radians(0)
-        })
-        .set(components::Sprite {
-            .texture    = getTexture("res/textures/floaty.png"),
-            .rectangle  = sf::IntRect({ 0, 0 }, { 32, 32 }),
-            .frames     = 4,
-            .frame_time = 1
-        })
-        .set(components::Depth {
-            .z = 10.f
-        });
+        for (int i = 0; i < 5; i ++)
+            _world.entity().set(components::Transform{
+                .position = sf::Vector2f(60 + rand_num(-100.f, 100.f), 200 + rand_num(-100.f, 100.f)),
+                .scale = sf::Vector2f(1, 1),
+                .rotation = sf::radians(0)
+            })
+            .set(components::Force{
+                .direction = sf::Vector2f(0, 0),
+                .m = 1.f,
+                .k = 8.5f,
+                .max_velocity = 150.f
+                })
+            .set(components::Velocity{
+                .vector = sf::Vector2f(0, 0)
+                })
+            .set(components::Sprite{
+                .texture = getTexture("res/textures/floaty.png"),
+                .rectangle = sf::IntRect({ 0, 0 }, { 32, 32 }),
+                .frames = 4,
+                .frame_time = 1,
+                .offset = sf::Vector2f(0, -30)
+            }).set<components::Enemy>({ components::EnemyType::Floaty })
+            .add<components::MapCoordinates>();
     }
 
     void GameScreen::onRender()
@@ -48,6 +62,10 @@ namespace game
                 getView().getSize()   + (target_zoom - getView().getSize()) * 4.5f * (float)dt
             )
         );
+
+        std::cout <<
+            _player.getEntity().get<const components::MapCoordinates>()->coordinates.x << ", " <<
+            _player.getEntity().get<const components::MapCoordinates>()->coordinates.y << "\n";
     }
 
     void GameScreen::onEvent(const sf::Event& event)

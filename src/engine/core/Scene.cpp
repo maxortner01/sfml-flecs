@@ -71,14 +71,22 @@ namespace s2de
         using namespace components;
 
         /* Order the sprites and rectangles by depth */
-        auto objects = _world.query_builder<const Depth, const Transform>()
-            .order_by<const Depth>([](flecs::entity_t e1, const Depth* d1, flecs::entity_t e2, const Depth* d2)
+        auto objects = _world.query_builder<Transform, const MapCoordinates>()
+            .order_by<const MapCoordinates>([](flecs::entity_t e1, const MapCoordinates* d1, flecs::entity_t e2, const MapCoordinates* d2)
             {
-                return (d1->z > d2->z) - (d1->z < d2->z);
-            }).build();
+                int32_t coord1 = d1->coordinates.y + d1->coordinates.x + d1->level;
+                int32_t coord2 = d2->coordinates.y + d2->coordinates.x + d2->level;
+
+                /* If the positions are the same, sort by the entitity id.. works for now */
+                if (coord1 == coord2)
+                    return (e1 > e2) - (e1 < e2);
+                
+                return (coord1 > coord2) - (coord1 < coord2);
+            })
+            .build();
 
         /* Go through the queried objects and render with the appropriate method */
-        objects.each([this](flecs::entity e, const Depth& depth, const Transform& transform) 
+        objects.each([this](flecs::entity e, Transform& transform, const MapCoordinates& map)
         {
             if (e.has<const Sprite>())
             {
@@ -93,6 +101,8 @@ namespace s2de
                 object.setPosition(transform.position);
                 object.setScale(transform.scale);
                 object.setRotation(transform.rotation);
+                object.setOrigin(object.getGlobalBounds().getSize() / 2.f);
+                object.move(sprite->offset);
                 this->_surface.draw(object);
             }
             else if (e.has<const Rectangle>())
@@ -109,6 +119,8 @@ namespace s2de
                 this->_surface.draw(sf_rect);
             }
         });
+
+        objects.destruct();
 
         /* Render the systems */
         for (auto* system : getSystems())

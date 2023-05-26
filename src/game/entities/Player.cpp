@@ -8,33 +8,31 @@ namespace game
     Player::Player(const flecs::world& world) :
         _entity(world.entity())
     {
-        _entity.set(components::Transform {
-            .position = sf::Vector2f(0, 0),
+        _entity.set(components::Transform{
+            .position = sf::Vector2f(80, 120),
             .scale = sf::Vector2f(0.2, 0.2),
             .rotation = sf::radians(0)
         })
-        .set(components::Force {
+        .set(components::Force{
             .direction = sf::Vector2f(0, 0),
             .m = 1.f,
             .k = 6.5f,
-            .max_velocity = 650.f
-        })
-        .set(components::Velocity {
+            .max_velocity = 250.f
+            })
+        .set(components::Velocity{
             .vector = sf::Vector2f(0, 0)
-        })
-        .set(components::Rectangle {
+            })
+        .set(components::Rectangle{
             .dimensions = sf::Vector2f(32, 32),
             .color = sf::Color::White
-        })
-        .set(components::Input {
+            })
+        .set(components::Input{
             .object = static_cast<components::InputObject*>(this)
-        })
-        .set(components::Scriptable {
+            })
+        .set(components::Scriptable{
             .object = static_cast<components::ScriptableObject*>(this)
-        })
-        .set(components::Depth {
-            .z = 0.f
-        })
+            })
+        .add<components::MapCoordinates>()
         .add<components::Player>();
     }
 
@@ -46,8 +44,8 @@ namespace game
         force->direction = sf::Vector2f(0, 0);
         sf::Vector2f new_force;
         const float mag = force->max_velocity * force->k;
-        if (_input[0]) new_force.y -= mag;
-        if (_input[1]) new_force.y += mag;
+        if (_input[0]) new_force.y -= mag * 0.5;
+        if (_input[1]) new_force.y += mag * 0.5;
         if (_input[2]) new_force.x -= mag;
         if (_input[3]) new_force.x += mag;
         if (new_force.length()) new_force = new_force.normalized() * mag;

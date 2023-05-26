@@ -11,9 +11,13 @@ namespace s2de
             None,
             Ground1,
             Ground2,
-            RoofLeft,
-            RoofTop,
-            RoofRight,
+            RoofA,
+            RoofB,
+            RoofC,
+            RoofD,
+            RoofE,
+            RoofF,
+            RoofG,
             WallRight,
             WallLeft,
             WallTop,
@@ -28,7 +32,7 @@ namespace s2de
     private:
         void generateTileMap(Tilemap& tilemap, const sf::Image& map, flecs::world& world);
 
-        void createTile(const sf::Vector2i& coordinate, uint32_t index, flecs::world& world);
+        void createTile(const sf::Vector2i& coordinate, uint32_t index, flecs::world& world, float elevation = 0.f);
         void generateTile(const sf::Vector2i& coordinate, flecs::world& world) const;
         sf::Vector2f mapToWorld(const sf::Vector2i& map) const;
         sf::Vector2i worldToMap(const sf::Vector2f& world) const;

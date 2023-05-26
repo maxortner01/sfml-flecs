@@ -9,20 +9,22 @@ namespace s2de
         _tile_size(tile_size),
         _tilemap(tilemap)
     {   
+        /* Start up and generate tilemap right away (create entities) */
         generateTileMap(_tiles, map, world);
-
-        //_tiles.resize(6);
-        //_tiles[0] = { 4, 5, 5, 5, 0, 0 };
-        //_tiles[1] = { 3, 8, 6, 6, 0, 0 };
-        //_tiles[2] = { 3, 7, 1, 1, 0, 0 };
-        //_tiles[3] = { 3, 7, 1, 1, 0, 0 };
-        //_tiles[4] = { 0, 0, 0, 0, 0, 0 };
-        //_tiles[5] = { 0, 0, 0, 0, 0, 0 };
     }
 
     void SysTilemap::onUpdate(double dt, flecs::world& world) 
     {
         using namespace components;
+
+        auto mapcoordinates = world.filter<const Transform, MapCoordinates>();
+        mapcoordinates.each([this](flecs::entity e, const Transform& transform, MapCoordinates& coordinates)
+            {
+                coordinates.coordinates = worldToMap(transform.position);
+                if (e.has<Tile>()) coordinates.level = -10;
+                else coordinates.level = 0;
+            });
+
         return;
 
         auto player = world.filter<components::Player, Transform>().first();
@@ -53,22 +55,13 @@ namespace s2de
 
     void SysTilemap::generateTileMap(Tilemap& tilemap, const sf::Image& map, flecs::world& world)
     {
-        //sf::Image image;
-        //image.create(map.getSize(), sf::Color::Black);
 
-        //tilemap.resize(map.getSize().y);
         for (uint32_t y = 0; y < map.getSize().y; y++)
         {
-            //tilemap[y].resize(map.getSize().x);
             for (uint32_t x = 0; x < map.getSize().x; x++)
             {
                 const sf::Color pixel = map.getPixel({x, y});
-                if (pixel == sf::Color::White) 
-                {
-                    createTile(sf::Vector2i(x, y), 0, world); 
-                    continue; 
-                }
-                continue;
+                if (pixel == sf::Color::White) createTile(sf::Vector2i(x, y), Ground1 - 1, world);
 
                 std::bitset<8> adjacency;
                 uint32_t k = 0;
@@ -86,15 +79,49 @@ namespace s2de
                             adjacency[k - 1] = 1;
                     }
 
+                /*
                 std::bitset<8> wallright;
                 wallright[0] = 0; wallright[1] = 0; wallright[2] = 0;
-                wallright[3] = 0; /*             */ wallright[4] = 0;
-                wallright[5] = 0; wallright[6] = 1; wallright[7] = 0;
- 
+                wallright[3] = 0; /               / wallright[4] = 0;
+                wallright[5] = 0; wallright[6] = 1; wallright[7] = 0; */
+    
+                if (pixel == sf::Color::White) continue;
+
+                bool need_corner = false;
+
+                /* Top wall and roof */
                 if (adjacency[1] == 0 && adjacency[6] == 1) 
                 { 
-                    tilemap[y][x] = WallRight; 
-                    tilemap[y - 1][x] = RoofRight;
+                    createTile(sf::Vector2i(x, y), WallRight - 1, world, 10.f);
+
+                    if (!(adjacency[4] && adjacency[6]))
+                        createTile(sf::Vector2i(x - 1, y - 1), RoofC - 1, world, 15.f);
+                    else need_corner = true;
+                }
+
+                /* Middle roof and wall */
+                if (adjacency[1] && adjacency[6])
+                {
+                    createTile(sf::Vector2i(x, y), WallRight - 1, world, 10.f);
+                    createTile(sf::Vector2i(x - 1, y - 1), RoofG - 1, world, 15.f);
+                }
+                /* Left wall and roof */
+                if (!adjacency[3] && adjacency[4])
+                {
+                    createTile(sf::Vector2i(x, y), WallLeft - 1, world, 10.f);
+
+                    if (!(adjacency[4] && adjacency[6]))
+                        createTile(sf::Vector2i(x - 1, y - 1), RoofA - 1, world, 15.f);
+                    else need_corner = true;
+                }
+                if (adjacency[7] && !adjacency[6] && !adjacency[4])
+                {
+                    createTile(sf::Vector2i(x - 1, y - 1), RoofB - 1, world, 15.f);
+                }
+
+                if (need_corner)
+                {
+                    createTile(sf::Vector2i(x - 1, y - 1), RoofF - 1, world, 15.f);
                 }
             }
         }
@@ -120,7 +147,7 @@ namespace s2de
         }*/
     }
 
-    void SysTilemap::createTile(const sf::Vector2i& coordinate, uint32_t index, flecs::world& world)
+    void SysTilemap::createTile(const sf::Vector2i& coordinate, uint32_t index, flecs::world& world, float elevation)
     {
         using namespace components;
 
@@ -134,13 +161,11 @@ namespace s2de
                 .texture = _tilemap,
                 .rectangle = sf::IntRect({ 64 * (int32_t)index, 0 }, { 64, 64 }),
                 .frames = 1,
-                .frame_time = 1.f
+                .frame_time = 1.f,
+                .offset = sf::Vector2f(0, 0)
             })
             .set(MapCoordinates {
                 .coordinates = coordinate
-            })
-            .set(Depth {
-                .z = -10.f + mapToWorld(coordinate).y / 1000.f
             })
             .add<Tile>();
     }
@@ -174,7 +199,8 @@ namespace s2de
                 .coordinates = coordinate
             })
             .set(Depth {
-                .z = -10.f + mapToWorld(coordinate).y / 1000.f
+                .z = -10.f + mapToWorld(coordinate).y / 1000.f,
+                .elevation = 0.f
             })
             .add<Tile>();
     }

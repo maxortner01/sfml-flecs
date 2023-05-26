@@ -7,13 +7,24 @@ namespace s2de::components
 {
     /* Tags */
     enum class Player {};
-    enum class Enemy {};
     enum class Tile {};
+
+
+    enum EnemyType : uint8_t
+    {
+        Floaty
+    };
+
+    struct Enemy 
+    {
+        EnemyType type;
+    };
 
     /* Components */
     struct Depth
     {
         float z;
+        float elevation;
     };
 
     struct Transform
@@ -31,6 +42,7 @@ namespace s2de::components
     struct MapCoordinates
     {
         sf::Vector2i coordinates;
+        int32_t level;
     };
 
     struct hp
@@ -54,6 +66,7 @@ namespace s2de::components
         sf::IntRect  rectangle;
         uint32_t     frames;
         double frame_time;
+        sf::Vector2f offset;
     };
 
     struct Rectangle
