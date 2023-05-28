@@ -23,7 +23,8 @@ namespace game
         addSystem<SysPhysics>();
         addSystem<EnemySystem>(getTexture("res/textures/proj.png"));
         addSystem<BattleSystem>();
-        addSystem<SysHpDraw>();
+        addSystem<SysHpDraw>(getTexture("res/textures/health.png"));
+        addSystem<AnimationSystem>();
 
         for (int i = 0; i < 5; i ++)
             _world.entity().set(components::Transform{
@@ -48,8 +49,14 @@ namespace game
                 .texture = getTexture("res/textures/floaty.png"),
                 .rectangle = sf::IntRect({ 0, 0 }, { 32, 32 }),
                 .frames = 4,
-                .frame_time = 1
-            }).set<components::Enemy>({ components::EnemyType::Floaty });
+                .frame_time = 1,
+                .color = sf::Color::White
+            })
+            .set(components::AnimationState {
+                .state_code = components::AnimStateCode::None,
+                .state_start_time = 0
+            })
+            .set<components::Enemy>({ components::EnemyType::Floaty });
     }
 
     sf::Vector2f GameScreen::toWorld(const sf::Vector3f & pos) const

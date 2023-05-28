@@ -108,7 +108,7 @@ namespace s2de
                 .rectangle = sf::IntRect({ 64 * (int32_t)index, 0 }, { 64, 64 }),
                 .frames = 1,
                 .frame_time = 1.f,
-                .offset = sf::Vector2f(0, 0)
+                .color = sf::Color::White
             })
             .add<Tile>();
     }

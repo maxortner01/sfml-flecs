@@ -55,6 +55,8 @@ namespace s2de
         auto input = _world.filter<components::Input>();
         input.each([event](components::Input& input)
         { input.object->onEvent(event); });
+
+        for (auto* system : _systems) system->onEvent(event);
     }
 
     void Scene::updateChildren(double dt)
@@ -97,6 +99,7 @@ namespace s2de
 
                 sf::Sprite object(*sprite->texture);
                 object.setTextureRect(rectangle);
+                object.setColor(sprite->color);
                 object.setPosition(toWorld(transform.position));
                 object.setScale(transform.scale);
                 object.setRotation(transform.rotation);

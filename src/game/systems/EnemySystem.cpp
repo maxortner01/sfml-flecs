@@ -41,9 +41,17 @@ namespace game
 
 		auto player_position = player.get<const Transform>()->position;
 
-		auto enemies = world.filter<const Enemy, const Transform, const Sprite, Force>();
-		enemies.each([&player_position, &dt, &enemies, this, &world](flecs::entity e1, const Enemy& enemy, const Transform& transform, const Sprite& sprite, Force& force)
+		auto enemies = world.filter<const Enemy, const Transform, const Sprite, Force, const AnimationState>();
+		enemies.each([&player_position, &dt, &enemies, this, &world](
+				flecs::entity e1, 
+				const Enemy& enemy, 
+				const Transform& transform, 
+				const Sprite& sprite, 
+				Force& force,
+				const AnimationState& state)
 			{
+				if (state.state_code == AnimStateCode::Dying) return;
+
 				const sf::Vector3f dir_unnormalized = (player_position - transform.position);
 				const float distance = dir_unnormalized.length();
 				const sf::Vector3f dir = dir_unnormalized / distance;
@@ -59,7 +67,13 @@ namespace game
 					force.direction.y = sf::Vector2f(dir.x, dir.y).rotatedBy(sf::degrees(110)).y * 1.f;
 				}
 					
-				enemies.each([&e1, &transform, &force](flecs::entity e2, const Enemy& enemy, const Transform& transform2, const Sprite& sprite2, Force& force2)
+				enemies.each([&e1, &transform, &force](
+						flecs::entity e2, 
+						const Enemy& enemy, 
+						const Transform& transform2, 
+						const Sprite& sprite2, 
+						Force& force2,
+						const AnimationState& state2)
 					{
 						if (e1 == e2) return;
 

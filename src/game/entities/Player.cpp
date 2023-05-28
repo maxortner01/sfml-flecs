@@ -32,6 +32,10 @@ namespace game
         .set(components::Scriptable{
             .object = static_cast<components::ScriptableObject*>(this)
             })
+        .set(components::HP{
+            .value = 1.f,
+            .max = 1.f
+            })
         .add<components::Player>();
     }
 

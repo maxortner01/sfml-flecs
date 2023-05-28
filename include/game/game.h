@@ -6,3 +6,4 @@
 #include "systems/EnemySystem.h"
 #include "systems/BattleSystem.h"
 #include "systems/SysHpDraw.h"
+#include "systems/AnimationSystem.h"

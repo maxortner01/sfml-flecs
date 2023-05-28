@@ -47,6 +47,20 @@ namespace s2de::components
         float max_velocity;
     };
 
+    enum class AnimStateCode : uint32_t
+    {
+        None,
+        Hurt,
+        Dying,
+        Dead
+    };
+
+    struct AnimationState
+    {
+        AnimStateCode state_code;
+        double        state_start_time;
+    };
+
     struct Sprite
     {
         sf::Texture* texture;
@@ -54,6 +68,7 @@ namespace s2de::components
         uint32_t     frames;
         double frame_time;
         sf::Vector2f offset;
+        sf::Color    color;
     };
 
     struct Rectangle
