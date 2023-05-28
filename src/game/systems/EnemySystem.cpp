@@ -78,14 +78,14 @@ namespace game
 						).length();
 					const float g = 9.8f * 0.5f;
 					const float v0 = 3.5f;
-					const float vx = g * dist / (v0 + sqrt(v0 * v0 + 4 * g * transform.position.z));
+					const float vx = 1.1f * g * dist / (v0 + sqrt(v0 * v0 + 4 * g * transform.position.z));
 					sf::Vector3f vel = dir * vx;
 					vel.z = v0;
 
 					// shoot?
 					srand(e1.id());
 					double val = fmod(_time.getElapsedTime().asSeconds(), (rand() % 1000) / 1000.f);
-					if (val < 0.01)
+					if (val < 0.005)
 					{
 						world.entity()
 							.set(Transform{

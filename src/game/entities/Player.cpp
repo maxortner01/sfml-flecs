@@ -17,7 +17,7 @@ namespace game
             .direction = sf::Vector3f(0, 0, 0),
             .m = 1.f,
             .k = 2.f,
-            .max_velocity = 10.f
+            .max_velocity = 7.5f
             })
         .set(components::Velocity{
             .vector = sf::Vector3f(0, 0, 0)

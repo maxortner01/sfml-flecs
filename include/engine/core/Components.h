@@ -33,11 +33,10 @@ namespace s2de::components
         sf::Vector3f vector;
     };
 
-    struct hp
+    struct HP
     {
         float value;
         float max;
-        float offset;
     };
 
     struct Force

@@ -23,6 +23,7 @@ namespace game
         addSystem<SysPhysics>();
         addSystem<EnemySystem>(getTexture("res/textures/proj.png"));
         addSystem<BattleSystem>();
+        addSystem<SysHpDraw>();
 
         for (int i = 0; i < 5; i ++)
             _world.entity().set(components::Transform{
@@ -33,11 +34,15 @@ namespace game
             .set(components::Force{
                 .direction = sf::Vector3f(0, 0, 0),
                 .m = 1.f,
-                .k = 2.f,
-                .max_velocity = 2.f
+                .k = 1.f,
+                .max_velocity = 5.f
                 })
             .set(components::Velocity{
                 .vector = sf::Vector3f(0, 0, 0)
+                })
+            .set(components::HP{
+                .value = 1.f,
+                .max = 1.f
                 })
             .set(components::Sprite{
                 .texture = getTexture("res/textures/floaty.png"),
